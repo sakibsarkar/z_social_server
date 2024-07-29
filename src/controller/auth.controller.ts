@@ -3,7 +3,11 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import catchAsyncError from "../middlewares/catchAsyncErrors";
 import User from "../models/user.model";
 
-import { createAcessToken, ITokenPayload } from "../utils/jwtToken";
+import {
+  createAcessToken,
+  createRefreshToken,
+  ITokenPayload,
+} from "../utils/jwtToken";
 import sendMessage from "../utils/sendMessage";
 import sendResponse from "../utils/sendResponse";
 export const authSateController = catchAsyncError(async (req, res) => {
@@ -17,7 +21,11 @@ export const signup = catchAsyncError(async (req, res) => {
   const user = await User.findOne({ username: body.email });
 
   if (user) {
-    return res.status(400).json({ error: "Username already exists" });
+    return sendResponse(res, {
+      success: false,
+      data: null,
+      message: "A account already exist in this email",
+    });
   }
 
   // HASH PASSWORD HERE
@@ -49,9 +57,10 @@ export const login = catchAsyncError(async (req, res) => {
 
   if (!user) {
     return sendResponse(res, {
-      data: null,
-      message: "user not found",
       success: false,
+      data: null,
+      message: "No account found on this email",
+      statusCode: 404,
     });
   }
 
@@ -62,9 +71,10 @@ export const login = catchAsyncError(async (req, res) => {
 
   if (!isPasswordCorrect) {
     return sendResponse(res, {
-      data: null,
-      message: "Invalid email or password",
+      message: "password didn't matched",
       success: false,
+      data: null,
+      statusCode: 403,
     });
   }
 
@@ -72,11 +82,15 @@ export const login = catchAsyncError(async (req, res) => {
     email: user.email,
     id: user._id.toString(),
   };
-
+  const refreshToken = createRefreshToken({
+    email: user.email,
+    id: user._id,
+  });
   const token = createAcessToken(tokenPayload, "1h");
   res.json({
     data: user,
     accessToken: token,
+    refreshToken,
     success: true,
     message: "user logged in successfully",
   });
@@ -166,7 +180,7 @@ export const resetPassword = catchAsyncError(async (req: any, res, next) => {
       message: "password didn't matched",
       data: null,
       success: false,
-      statusCode: 401,
+      statusCode: 403,
     });
   }
 
