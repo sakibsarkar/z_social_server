@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import authRoute from "./auth.routes";
-import chatHeadRoute from "./chatHeads.routes";
+import chatHeadRoute from "./user.routes";
 import messageRoute from "./message.routes";
 
 const router = Router();
@@ -16,7 +16,7 @@ const moduleRoute = [
     route: authRoute,
   },
   {
-    path: "/chat-heads",
+    path: "/user",
     route: chatHeadRoute,
   },
 ];

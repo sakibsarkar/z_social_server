@@ -30,7 +30,7 @@ const userSchema = new Schema(
       required: true,
       enum: ["male", "female"],
     },
-    profilePic: {
+    image: {
       type: String,
       default: "",
     },
