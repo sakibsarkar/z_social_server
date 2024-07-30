@@ -20,12 +20,16 @@ export const getReceiverSocketId = (receiverId: string) => {
 const userSocketMap: Record<string, string> = {}; // {userId: socketId ,...}
 
 io.on("connection", async (socket) => {
-  console.log("a user connected", socket.id);
-
   const userId = socket.handshake.query.userId;
-  if (userId != "undefined") userSocketMap[userId as string] = socket.id;
+  if (userId === "undefined" || !userId) {
+    return;
+  }
+  console.log("user connected", userId);
 
-  const isexist = await User.findById(userId);
+  userSocketMap[userId as string] = socket.id;
+
+  const isexist = userId && (await User.findById(userId));
+
   if (isexist) {
     await User.findOneAndUpdate(isexist._id, {
       onlineStatus: { isOnline: true, time: new Date() },

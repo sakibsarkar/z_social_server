@@ -1,7 +1,8 @@
 import express from "express";
 
 import {
-  deleteMessage,
+deleteMessage,
+  eiditMessage,
   getMessages,
   sendMessageController,
 } from "../controller/message.controller";
@@ -12,7 +13,7 @@ const router = express.Router();
 router.get("/get/:id", isAuthenticatedUser, getMessages);
 router.post("/send/:id", isAuthenticatedUser, sendMessageController);
 router.delete("/delete/:messageId", isAuthenticatedUser, deleteMessage);
-
+router.put("/edit/:messageId",isAuthenticatedUser,eiditMessage)
 const messageRoute = router;
 
 export default messageRoute;

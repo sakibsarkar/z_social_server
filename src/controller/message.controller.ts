@@ -100,3 +100,38 @@ export const deleteMessage = catchAsyncError(async (req, res) => {
     success: true,
   });
 });
+export const eiditMessage = catchAsyncError(async (req, res) => {
+  const user = req.user as JwtPayload;
+  const messageId = req.params.messageId as string;
+  const { message } = req.body;
+  const isExistMessage = await Message.findOne({
+    _id: messageId,
+    isDeleted: false,
+  });
+  if (!isExistMessage) {
+    return sendResponse(res, {
+      data: null,
+      message: "Message not found",
+      success: false,
+    });
+  }
+  if (isExistMessage.sender.toString() !== user._id.toString()) {
+    return sendResponse(res, {
+      data: null,
+      message: "Forbidden access",
+      success: false,
+      statusCode: 403,
+    });
+  }
+
+  const result = await Message.findByIdAndUpdate(
+    isExistMessage._id,
+    { message },
+    { new: true }
+  );
+  sendResponse(res, {
+    data: result,
+    message: "message deleted successfylly",
+    success: true,
+  });
+});
